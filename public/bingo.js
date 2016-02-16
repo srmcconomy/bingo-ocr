@@ -39,20 +39,23 @@ function bingosetup() {
 	$("#tlbr").hover(function() { $(".tlbr").addClass("hover"); }, function() {	$(".tlbr").removeClass("hover"); });
 	$("#bltr").hover(function() { $(".bltr").addClass("hover"); }, function() {	$(".bltr").removeClass("hover"); });
   $('#image-button').on('click', function() {
-    var image = $('#image-input').val().replace(/^http:\/\/imgur.com\/([^\.]+)$/, "http://i.imgur.com/$1.png");
+    var image = $('#image-input').val().replace(/^http:\/\/(?:i.)?imgur.com\/([^\.]+)(?:.png)?$/, "$1");
+		$("#status").html("Parsing...");
     $.post('/', {image: image})
     .done( function(result) {
       console.log(result)
     	var bingoBoard = result;
     	if(bingoBoard) {
     		for (i=1; i<=25; i++) {
-    			$('#slot'+i).append(bingoBoard[i].name);
+    			$('#slot'+i).html(bingoBoard[i].name);
     		}
+				$("#status").html("Done!")
     	} else {
-    		alert('Card could not be generated');
+				$("#status").html("Error!")
     	}
     })
     .fail(function(err) {
+			$("#status").html("Error!")
       console.log(err)
     })
   });
