@@ -11,7 +11,7 @@ function bingosetup() {
         window.open('etc/bingo-popout.html#'+ name +'='+ items.join(';;;'),"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=220, height=460");
     });
 
-    $("#bingo tr td:not(.popout), #selected td").toggle(
+  $("#bingo tr td:not(.popout), #selected td").toggle(
 		function () {
 		  $(this).addClass("greensquare");
 		},
@@ -21,7 +21,6 @@ function bingosetup() {
 		function () {
 		  $(this).removeClass("redsquare");
 		}
-
   );
 
 	$("#row1").hover(function() { $(".row1").addClass("hover"); }, function() {	$(".row1").removeClass("hover"); });
@@ -38,27 +37,37 @@ function bingosetup() {
 
 	$("#tlbr").hover(function() { $(".tlbr").addClass("hover"); }, function() {	$(".tlbr").removeClass("hover"); });
 	$("#bltr").hover(function() { $(".bltr").addClass("hover"); }, function() {	$(".bltr").removeClass("hover"); });
-  $('#image-button').on('click', function() {
-    var image = $('#image-input').val().replace(/^http:\/\/(?:i.)?imgur.com\/([^\.]+)(?:.png)?$/, "$1");
-		$("#status").html("Parsing...");
-    $.post('/', {image: image})
-    .done( function(result) {
-      console.log(result)
-    	var bingoBoard = result;
-    	if(bingoBoard) {
-    		for (i=1; i<=25; i++) {
-    			$('#slot'+i).html(bingoBoard[i].name);
-    		}
-				$("#status").html("Done!")
-    	} else {
-				$("#status").html("Error!")
-    	}
-    })
-    .fail(function(err) {
+  $('#image-button').on('click', go);
+
+	var r = /image=([^&]+)/.exec(document.location.search)
+	if (r.length === 2) {
+		$('#image-input').val('http://imgur.com/' + r[1]);
+		go();
+	}
+}
+
+function go() {
+	var image = $('#image-input').val().replace(/^http:\/\/(?:i.)?imgur.com\/([^\.]+)(?:.png)?$/, "$1");
+	$("#status").html("Parsing...");
+	$.post('/', {image: image})
+	.done( function(result) {
+		console.log(result)
+		var bingoBoard = result;
+		if(bingoBoard) {
+			for (i=1; i<=25; i++) {
+				$('#slot'+i).html(bingoBoard[i].name);
+			}
+			$("#status").html("Done!")
+			$("#link").html(document.location.origin + "?image=" + image)
+			$("#link").attr("href", "/?image=" + image)
+		} else {
 			$("#status").html("Error!")
-      console.log(err)
-    })
-  });
+		}
+	})
+	.fail(function(err) {
+		$("#status").html("Error!")
+		console.log(err)
+	})
 }
 
 $(bingosetup);
